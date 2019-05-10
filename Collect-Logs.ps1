@@ -10,16 +10,17 @@ function CustomCopy
         New-Item -Path $dest -ItemType Directory
     }
 
-    Copy-Item $source $dest -ErrorAction SilentlyContinue
+    Copy-Item $source $dest -ErrorAction SilentlyContinue -Recurse
 }
 
 $tempFolder = New-TemporaryFile | %{ rm $_; mkdir $_ }
 
 CustomCopy (Join-Path $drive "Windows\Panther\*") (Join-Path $tempFolder "Panther")
-CustomCopy (Join-Path $drive "Windows\MiniDumps\*") (Join-Path $tempFolder "MiniDumps")
-CustomCopy (Join-Path $drive "Windows\CrashDumps\*") (Join-Path $tempFolder "CrashDumps")
+CustomCopy (Join-Path $drive "Windows\MiniDump\*") (Join-Path $tempFolder "MiniDump")
+CustomCopy (Join-Path $drive "Windows\CrashDump\*") (Join-Path $tempFolder "CrashDump")
 CustomCopy (Join-Path $drive "Windows\MEMORY*.dmp")  (Join-Path $tempFolder "")
 CustomCopy (Join-Path $drive "Windows\inf\*log*") (Join-Path $tempFolder "inf")
+CustomCopy (Join-Path $drive "Windows\Logs\**") (Join-Path $tempFolder "Logs")
 
 Compress-Archive -Path "$($tempFolder)\*" -DestinationPath "Logs.zip"
 Remove-Item $tempFolder -Recurse -Force
