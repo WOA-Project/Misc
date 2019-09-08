@@ -1,4 +1,6 @@
-﻿function Map([string] $source, [string]$destination) 
+#Requires -RunAsAdministrator
+
+function Map([string] $source, [string]$destination) 
 {
     Remove-Item $source -Recurse -Force
     Remove-Item $destination -Recurse -Force
