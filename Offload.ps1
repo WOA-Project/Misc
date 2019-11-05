@@ -6,23 +6,30 @@ param(
     [string]$DestinationDrive
 )
 
-if (Test-Path $SourceFolder)
+try 
 {
-    $source = Get-Item $SourceFolder
-} else 
-{
-    $source = New-Item $Sourcefolder -ItemType Directory
-}
 
-
-$noQualifierPath = Split-Path $source.FullName -NoQualifier
-$destFolder = Join-Path $DestinationDrive $noQualifierPath
+    if (Test-Path $SourceFolder)
+    {
+        $source = Get-Item $SourceFolder
+    } else 
+    {
+        $source = New-Item $Sourcefolder -ItemType Directory -n | Out-Null
+    }
     
-if (!(Test-Path $destFolder))
+    $parent = $source.Parent
+    $noQualifierPath = Split-Path $parent.FullName -NoQualifier
+    $destFolder = Join-Path $DestinationDrive $noQualifierPath
+    
+    Write-Host "Copying folder to '$($destFolder)'. Please wait..." 
+    Copy-Item $source -Destination $destFolder -Force -Recurse
+    Remove-Item $source -Recurse -Force
+    cmd /c mklink /j $SourceFolder $destFolder | Out-Null
+    Write-Host "Success!" -ForegroundColor Green 
+    Write-Host "$($SourceFolder) has been offloaded to $($DestinationDrive)" -ForegroundColor Green 
+    
+} 
+catch
 {
-    New-Item -Path $destFolder -ItemType Directory
+    Write-Error "Could not offload $($SourceFolder) to $($DestinationDrive)"
 }
-
-Copy-Item $source -Destination $destFolder -Recurse
-Remove-Item $source -Recurse -Force
-cmd /c mklink /j $SourceFolder $destFolder
