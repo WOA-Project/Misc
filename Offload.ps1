@@ -17,14 +17,13 @@ try
         $source = New-Item $Sourcefolder -ItemType Directory -n | Out-Null
     }
     
-    $parent = $source.Parent
-    $noQualifierPath = Split-Path $parent.FullName -NoQualifier
-    $destFolder = Join-Path $DestinationDrive $noQualifierPath
+    $relativeToRoot = Split-Path $source.FullName -NoQualifier
+    $destination = Join-Path $DestinationDrive $relativeToRoot
     
-    Write-Host "Copying folder to '$($destFolder)'. Please wait..." 
-    Copy-Item $source -Destination $destFolder -Force -Recurse
+    Write-Host "Copying $($SourceFolder) to '$($destination)'. Please wait..." 
+    Copy-Item $source -Destination $destination -Force -Recurse
     Remove-Item $source -Recurse -Force
-    cmd /c mklink /j $SourceFolder $destFolder | Out-Null
+    cmd /c mklink /j $SourceFolder $destination | Out-Null
     Write-Host "Success!" -ForegroundColor Green 
     Write-Host "$($SourceFolder) has been offloaded to $($DestinationDrive)" -ForegroundColor Green 
     
